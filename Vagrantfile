@@ -28,11 +28,11 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
-  config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  #config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.33.10"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -65,9 +65,20 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
      dnf update
-     dnf install -y httpd
-	 systemctl enable httpd
-	 systemctl start httpd
+	 dnf install -y mc
+     #dnf install -y httpd
+	 #systemctl enable httpd
+	 #systemctl start httpd
+cat > /etc/yum.repos.d/mongodb-org-4.4.repo << EOF 
+[mongodb-org-4.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+EOF
+	 dnf install -y mongodb-org
+	 systemctl start mongod
 	 dnf install -y tcpdump
 	 firewall-cmd --zone=public --permanent --add-service=http
 	 firewall-cmd --zone=public --permanent --add-service=https
